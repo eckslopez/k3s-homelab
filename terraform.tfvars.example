@@ -1,0 +1,36 @@
+# k3s Home Lab Configuration
+# Copy this file to terraform.tfvars and customize for your environment
+
+# REQUIRED: Path to your SSH public key
+ssh_public_key_path = "~/.ssh/id_rsa.pub"
+
+# Libvirt Configuration
+libvirt_network = "host-bridge"      # Your bridge network name (run: virsh net-list)
+libvirt_pool    = "libvirt_images"   # Your storage pool name (run: virsh pool-list)
+
+# Path to base image (created by Packer)
+base_image_path = "~/libvirt_images/k3s-node-ubuntu-24.04.qcow2"
+
+# Cluster Size
+control_plane_count = 1  # Number of control plane nodes
+worker_count        = 2  # Number of worker nodes
+
+# Node Resources - Control Plane
+control_plane_vcpu   = 6      # vCPUs per control plane node
+control_plane_memory = 10240  # Memory in MB (10GB)
+
+# Node Resources - Workers
+worker_vcpu   = 6      # vCPUs per worker node
+worker_memory = 10240  # Memory in MB (10GB)
+
+# Disk Size (in bytes)
+disk_size = 85899345920  # 80GB
+
+# k3s Configuration
+# k3s_version = "v1.31.1+k3s1"  # Specific version, or leave commented for latest stable
+# k3s_token   = "your-secret-token"  # Cluster token, or leave commented to auto-generate
+
+# Total Resources for Default Configuration:
+# - Control Plane: 1 node  × 6 vCPU × 10GB RAM = 6 vCPU, 10GB RAM
+# - Workers:       2 nodes × 6 vCPU × 10GB RAM = 12 vCPU, 20GB RAM
+# - TOTAL:         18 vCPU, 30GB RAM, 240GB disk
