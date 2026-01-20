@@ -1,0 +1,53 @@
+# libvirtd.conf - Configuration for remote libvirt access
+#
+# This is a reference configuration for enabling remote management
+# of libvirt from a laptop/workstation.
+#
+# INSTALLATION:
+#   sudo cp /etc/libvirt/libvirtd.conf /etc/libvirt/libvirtd.conf.backup
+#   sudo cp config-templates/libvirtd.conf.example /etc/libvirt/libvirtd.conf
+#   sudo systemctl restart libvirtd
+#
+# SECURITY NOTE:
+#   This configuration uses SSH for authentication (qemu+ssh:// URIs)
+#   which is secure. TCP without TLS is disabled for security.
+
+# Listen for secure connections
+listen_tls = 0
+listen_tcp = 0
+
+# TCP port (not used when listen_tcp = 0)
+#tcp_port = "16509"
+
+# Authentication for TCP
+auth_tcp = "none"
+
+# Unix socket configuration
+unix_sock_group = "libvirt"
+unix_sock_ro_perms = "0777"
+unix_sock_rw_perms = "0770"
+
+# Access control
+access_drivers = [ "polkit" ]
+
+# Logging
+log_filters="3:remote 4:event"
+log_outputs="3:syslog:libvirtd"
+
+# Keep alive settings (prevents SSH connection timeouts)
+keepalive_interval = 5
+keepalive_count = 5
+
+# Performance tuning
+max_clients = 20
+max_queued_clients = 1000
+max_anonymous_clients = 20
+
+# Process limits
+max_workers = 20
+max_requests = 20
+prio_workers = 5
+
+# Audit logging (optional - set to 1 to enable)
+audit_level = 0
+audit_logging = 0
