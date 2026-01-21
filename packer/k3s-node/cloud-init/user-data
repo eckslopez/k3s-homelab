@@ -1,20 +1,23 @@
 #cloud-config
-# Simple cloud-init for Ubuntu cloud image
-# This just sets up the ubuntu user with password and sudo access
 
+# Set password for ubuntu user (most reliable method)
+chpasswd:
+  list: |
+    ubuntu:ubuntu
+  expire: false
+
+# Enable password authentication
+ssh_pwauth: true
+
+# Configure ubuntu user
 users:
   - name: ubuntu
     sudo: ALL=(ALL) NOPASSWD:ALL
     groups: users, admin
     shell: /bin/bash
     lock_passwd: false
-    # Password: ubuntu (for Packer SSH access)
-    passwd: $6$rounds=4096$8fDfiO8sXLuzmw$kN4qXcXNYhqvN0HOQp7HRN7KBqDpqPkEMh8W5V8xCf7R7uqvxH3dZx5LqhvJGxzBHuiMvP0xGNPJ8FrL0E5L81
 
-# Enable password authentication for SSH (Packer needs this)
-ssh_pwauth: true
-
-# Don't require a password for sudo
+# Ensure sudo works without password
 runcmd:
   - echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/ubuntu
   - chmod 440 /etc/sudoers.d/ubuntu
