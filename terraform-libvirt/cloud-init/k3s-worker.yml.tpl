@@ -13,6 +13,14 @@ users:
 # Disable password authentication
 ssh_pwauth: false
 
+# Explicit SSH configuration
+ssh:
+  # Ensure key authentication is enabled
+  PasswordAuthentication: no
+  PubkeyAuthentication: yes
+  PermitRootLogin: no
+  ChallengeResponseAuthentication: no
+
 # Configure timezone
 timezone: UTC
 

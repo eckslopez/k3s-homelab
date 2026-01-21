@@ -1,0 +1,11 @@
+services:
+  terraform:
+    build: .
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+      - ~/.ssh:/root/.ssh:ro
+    environment:
+      - LIBVIRT_DEFAULT_URI=qemu+ssh://xlopez@192.168.1.11/system
+    stdin_open: true
+    tty: true

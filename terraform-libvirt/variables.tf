@@ -10,16 +10,23 @@ variable "libvirt_network" {
   default     = "host-bridge"
 }
 
+variable "libvirt_uri" {
+  description = "Libvirt connection URI"
+  type        = string
+  default     = "qemu:///system"  # Local default
+  # Override in terraform.tfvars for remote: qemu+ssh://user@host/system
+}
+
 variable "libvirt_pool" {
   description = "Name of libvirt storage pool"
   type        = string
   default     = "libvirt_images"
 }
 
-variable "base_image_path" {
-  description = "Path to base qcow2 image created by Packer"
+variable "base_volume_name" {
+  description = "Name of base volume in libvirt pool"
   type        = string
-  default     = "~/libvirt_images/k3s-node-ubuntu-24.04.qcow2"
+  default     = "k3s-node-ubuntu-24.04.qcow2"
 }
 
 variable "control_plane_count" {

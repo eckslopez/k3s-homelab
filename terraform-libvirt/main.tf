@@ -12,10 +12,10 @@ resource "random_password" "k3s_token" {
 
 # Base volume (used as backing image for all VMs)
 resource "libvirt_volume" "base" {
-  name   = "k3s-base.qcow2"
+  name   = "k3s-node-ubuntu-24.04.qcow2"  # Use the existing volume name
   pool   = var.libvirt_pool
-  source = pathexpand(var.base_image_path)
   format = "qcow2"
+  # NO source - tell Terraform to adopt the existing volume
 }
 
 # Control Plane Nodes
