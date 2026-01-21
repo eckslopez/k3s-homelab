@@ -10,13 +10,14 @@ packer {
 }
 
 source "qemu" "ubuntu" {
-  # ISO Configuration
-  iso_url      = var.ubuntu_iso_url
-  iso_checksum = var.ubuntu_iso_checksum
+  # Use Ubuntu Cloud Image instead of ISO
+  iso_url      = var.ubuntu_cloud_image_url
+  iso_checksum = var.ubuntu_cloud_image_checksum
   
   # VM Settings
   vm_name       = var.vm_name
   disk_size     = var.disk_size
+  disk_image    = true  # Important: tells Packer this is a disk image, not ISO
   format        = "qcow2"
   accelerator   = "kvm"
   memory        = var.memory
@@ -30,24 +31,20 @@ source "qemu" "ubuntu" {
   # Output
   output_directory = var.output_directory
   
-  # Boot Configuration
-  boot_wait = "5s"
-  boot_command = [
-    "<esc><wait>",
-    "e<wait>",
-    "<down><down><down><end>",
-    "<bs><bs><bs><bs><wait>",
-    "autoinstall ds=nocloud-net\\;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ---<wait>",
-    "<f10><wait>"
-  ]
+  # No boot command needed - cloud image boots directly
+  # Cloud-init will be provided via CD-ROM drive
   
-  # HTTP server for autoinstall
-  http_directory = "cloud-init"
+  # CD-ROM with cloud-init configuration
+  cd_files = [
+    "cloud-init/meta-data",
+    "cloud-init/user-data"
+  ]
+  cd_label = "cidata"
   
   # SSH Configuration
   ssh_username         = "ubuntu"
   ssh_password         = "ubuntu"
-  ssh_timeout          = "20m"
+  ssh_timeout          = "10m"
   ssh_handshake_attempts = 100
   
   # Shutdown

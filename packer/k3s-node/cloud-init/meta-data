@@ -1,2 +1,2 @@
-instance-id: ubuntu-builder
-local-hostname: ubuntu-builder
+instance-id: k3s-node-builder
+local-hostname: k3s-node-builder

@@ -256,6 +256,20 @@ sudo apt install packer
 
 # Verify
 packer version
+
+# Add your user to kvm group (required for KVM access)
+sudo usermod -aG kvm $USER
+
+# IMPORTANT: Log out and back in for group changes to take effect
+# Or start a new login shell:
+su - $USER
+
+# Verify group membership
+groups | grep kvm
+
+# Verify KVM access
+ls -l /dev/kvm
+# Should show: crw-rw---- 1 root kvm
 ```
 
 ## Cleanup (Optional)

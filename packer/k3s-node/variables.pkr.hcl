@@ -4,18 +4,16 @@ variable "ubuntu_version" {
   default     = "24.04"
 }
 
-variable "ubuntu_iso_url" {
+variable "ubuntu_cloud_image_url" {
   type        = string
-  description = "URL or local path for Ubuntu server ISO"
-  default     = "https://releases.ubuntu.com/24.04/ubuntu-24.04.1-live-server-amd64.iso"
-  # For local ISO, use: file:///path/to/ubuntu-24.04.1-live-server-amd64.iso
+  description = "URL for Ubuntu cloud image"
+  default     = "https://cloud-images.ubuntu.com/releases/24.04/release/ubuntu-24.04-server-cloudimg-amd64.img"
 }
 
-variable "ubuntu_iso_checksum" {
+variable "ubuntu_cloud_image_checksum" {
   type        = string
-  description = "Checksum for Ubuntu ISO (use 'none' to skip verification for local files)"
-  default     = "sha256:e240e4b801f098faa91c8223e11e4aa7a9d5e35c02cc1d9a0d5a6e0fc0c8b1b1"
-  # For local ISO without checksum: use "none"
+  description = "Checksum for Ubuntu cloud image"
+  default     = "file:https://cloud-images.ubuntu.com/releases/24.04/release/SHA256SUMS"
 }
 
 variable "disk_size" {

@@ -1,40 +1,20 @@
 #cloud-config
-autoinstall:
-  version: 1
-  
-  locale: en_US.UTF-8
-  keyboard:
-    layout: us
-  
-  network:
-    network:
-      version: 2
-      ethernets:
-        enp1s0:
-          dhcp4: true
-  
-  storage:
-    layout:
-      name: direct
-  
-  identity:
-    hostname: ubuntu-builder
-    username: ubuntu
-    password: $6$rounds=4096$saltsaltsal$HIyVt.KmjNmwTLn8gxB0EgVqDmKxVMPaQq3H7H3YWx4VMsNQjfZqMzW9FqQKQKQz7Rz0O/0.0Q0Q0Q0Q0
-    # Password is 'ubuntu' - will be changed via cloud-init
-  
-  ssh:
-    install-server: true
-    allow-pw: true
-  
-  packages:
-    - qemu-guest-agent
-    - cloud-init
-  
-  user-data:
-    disable_root: false
-    ssh_pwauth: true
-  
-  late-commands:
-    - echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/ubuntu
-    - chmod 440 /target/etc/sudoers.d/ubuntu
+# Simple cloud-init for Ubuntu cloud image
+# This just sets up the ubuntu user with password and sudo access
+
+users:
+  - name: ubuntu
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: users, admin
+    shell: /bin/bash
+    lock_passwd: false
+    # Password: ubuntu (for Packer SSH access)
+    passwd: $6$rounds=4096$8fDfiO8sXLuzmw$kN4qXcXNYhqvN0HOQp7HRN7KBqDpqPkEMh8W5V8xCf7R7uqvxH3dZx5LqhvJGxzBHuiMvP0xGNPJ8FrL0E5L81
+
+# Enable password authentication for SSH (Packer needs this)
+ssh_pwauth: true
+
+# Don't require a password for sudo
+runcmd:
+  - echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/ubuntu
+  - chmod 440 /etc/sudoers.d/ubuntu

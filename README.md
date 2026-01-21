@@ -85,6 +85,11 @@ sudo apt-get install terraform
 
 # libvirt/QEMU (if not already installed)
 sudo apt-get install qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils
+
+# Add user to required groups
+sudo usermod -aG kvm,libvirt $USER
+
+# Log out and back in for group changes to take effect
 ```
 
 #### Option B: Remote Management
@@ -98,6 +103,11 @@ sudo apt-get update && sudo apt-get install packer
 
 # libvirt/QEMU (if not already installed)
 sudo apt-get install qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils
+
+# Add user to required groups
+sudo usermod -aG kvm,libvirt $USER
+
+# Log out and back in for group changes to take effect
 
 # Configure for remote access
 sudo ./scripts/configure-libvirt-remote.sh
