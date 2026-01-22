@@ -12,10 +12,9 @@ resource "random_password" "k3s_token" {
 
 # Base volume (used as backing image for all VMs)
 resource "libvirt_volume" "base" {
-  name   = "k3s-node-ubuntu-24.04.qcow2"  # Use the existing volume name
+  name   = var.base_volume_name
   pool   = var.libvirt_pool
   format = "qcow2"
-  # NO source - tell Terraform to adopt the existing volume
 }
 
 # Control Plane Nodes
@@ -39,6 +38,10 @@ resource "libvirt_cloudinit_disk" "control_plane" {
     k3s_token      = local.k3s_token
     node_index     = count.index
   })
+  meta_data = <<-EOT
+    instance-id: k3s-cp-${format("%02d", count.index + 1)}
+    local-hostname: k3s-cp-${format("%02d", count.index + 1)}
+  EOT
 }
 
 resource "libvirt_domain" "control_plane" {
@@ -94,6 +97,10 @@ resource "libvirt_cloudinit_disk" "worker" {
     k3s_token        = local.k3s_token
     control_plane_ip = libvirt_domain.control_plane[0].network_interface[0].addresses[0]
   })
+  meta_data = <<-EOT
+    instance-id: k3s-worker-${format("%02d", count.index + 1)}
+    local-hostname: k3s-worker-${format("%02d", count.index + 1)}
+  EOT
 }
 
 resource "libvirt_domain" "worker" {

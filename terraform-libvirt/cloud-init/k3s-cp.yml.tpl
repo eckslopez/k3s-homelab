@@ -13,13 +13,22 @@ users:
 # Disable password authentication
 ssh_pwauth: false
 
-# Explicit SSH configuration
-ssh:
-  # Ensure key authentication is enabled
-  PasswordAuthentication: no
-  PubkeyAuthentication: yes
-  PermitRootLogin: no
-  ChallengeResponseAuthentication: no
+# Explicitly configure SSH daemon
+write_files:
+  - path: /etc/ssh/sshd_config.d/99-cloud-init-hardening.conf
+    content: |
+      # Cloud-init SSH hardening
+      PasswordAuthentication no
+      PubkeyAuthentication yes
+      PermitRootLogin no
+      ChallengeResponseAuthentication no
+      UsePAM yes
+    permissions: '0644'
+  - path: /etc/systemd/system/k3s.service.d/override.conf
+    content: |
+      [Service]
+      Restart=always
+      RestartSec=5s
 
 # Configure timezone
 timezone: UTC
@@ -38,6 +47,9 @@ packages:
 # Install k3s server
 runcmd:
   - |
+    # Restart SSH to apply config
+    systemctl restart sshd
+    
     # Wait for network
     until ping -c1 google.com &>/dev/null; do
       echo "Waiting for network..."
@@ -61,12 +73,6 @@ runcmd:
     
     echo "k3s control plane ready"
 
-# Enable k3s service
-write_files:
-  - path: /etc/systemd/system/k3s.service.d/override.conf
-    content: |
-      [Service]
-      Restart=always
-      RestartSec=5s
+# Write additional config files
 
 final_message: "k3s control plane node ${hostname} is ready after $UPTIME seconds"

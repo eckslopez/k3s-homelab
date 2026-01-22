@@ -74,4 +74,9 @@ echo "Cleaning up..."
 sudo apt-get autoremove -y
 sudo apt-get autoclean -y
 
+# Clean cloud-init so it runs fresh on cloned VMs
+echo "Cleaning cloud-init state..."
+sudo cloud-init clean --logs --seed
+sudo rm -rf /var/lib/cloud/instances /var/lib/cloud/instance
+
 echo "=== k3s node setup complete ==="
