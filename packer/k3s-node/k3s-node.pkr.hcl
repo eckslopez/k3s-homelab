@@ -82,7 +82,8 @@ build {
     inline = [
       "echo 'Copying image to libvirt pool...'",
       "mkdir -p ${var.libvirt_pool_path}/libvirt_images",
-      "cp ${var.output_directory}/${var.vm_name} ${var.libvirt_pool_path}/libvirt_images/${var.vm_name}.qcow2",
+      "sudo cp ${var.output_directory}/${var.vm_name} ${var.libvirt_pool_path}/libvirt_images/${var.vm_name}.qcow2",
+      "sudo chown ${var.user}:${var.user} ${var.libvirt_pool_path}/libvirt_images/${var.vm_name}.qcow2",
       "echo 'Image available at: ${var.libvirt_pool_path}/libvirt_images/${var.vm_name}.qcow2'"
     ]
   }
