@@ -42,6 +42,14 @@ resource "libvirt_cloudinit_disk" "control_plane" {
     instance-id: k3s-cp-${format("%02d", count.index + 1)}
     local-hostname: k3s-cp-${format("%02d", count.index + 1)}
   EOT
+  network_config = <<-EOT
+    version: 2
+    ethernets:
+      id0:
+        match:
+          name: "en*"
+        dhcp4: true
+  EOT
 }
 
 resource "libvirt_domain" "control_plane" {
@@ -58,7 +66,7 @@ resource "libvirt_domain" "control_plane" {
 
   network_interface {
     network_name   = var.libvirt_network
-    wait_for_lease = true
+    wait_for_lease = false
   }
 
   console {
@@ -73,7 +81,7 @@ resource "libvirt_domain" "control_plane" {
     autoport    = true
   }
 
-  qemu_agent = true
+  qemu_agent = false
 }
 
 # Worker Nodes
@@ -95,11 +103,19 @@ resource "libvirt_cloudinit_disk" "worker" {
     ssh_public_key   = local.ssh_public_key
     k3s_version      = local.k3s_version
     k3s_token        = local.k3s_token
-    control_plane_ip = libvirt_domain.control_plane[0].network_interface[0].addresses[0]
+    control_plane_ip = "192.168.122.152" # Hardcoded temporarily
   })
   meta_data = <<-EOT
     instance-id: k3s-worker-${format("%02d", count.index + 1)}
     local-hostname: k3s-worker-${format("%02d", count.index + 1)}
+  EOT
+  network_config = <<-EOT
+    version: 2
+    ethernets:
+      id0:
+        match:
+          name: "en*"
+        dhcp4: true
   EOT
 }
 
@@ -117,7 +133,7 @@ resource "libvirt_domain" "worker" {
 
   network_interface {
     network_name   = var.libvirt_network
-    wait_for_lease = true
+    wait_for_lease = false
   }
 
   console {
@@ -132,7 +148,7 @@ resource "libvirt_domain" "worker" {
     autoport    = true
   }
 
-  qemu_agent = true
+  qemu_agent = false
 
   depends_on = [libvirt_domain.control_plane]
 }
