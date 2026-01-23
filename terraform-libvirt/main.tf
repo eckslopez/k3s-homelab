@@ -45,10 +45,14 @@ resource "libvirt_cloudinit_disk" "control_plane" {
   network_config = <<-EOT
     version: 2
     ethernets:
-      id0:
-        match:
-          name: "en*"
-        dhcp4: true
+      ens3:
+        addresses:
+          - 192.168.122.10/24
+        routes:
+          - to: default
+            via: 192.168.122.1
+        nameservers:
+          addresses: [8.8.8.8, 1.1.1.1]
   EOT
 }
 
@@ -103,7 +107,7 @@ resource "libvirt_cloudinit_disk" "worker" {
     ssh_public_key   = local.ssh_public_key
     k3s_version      = local.k3s_version
     k3s_token        = local.k3s_token
-    control_plane_ip = "192.168.122.152" # Hardcoded temporarily
+    control_plane_ip = "192.168.122.10"  # Changed to static IP
   })
   meta_data = <<-EOT
     instance-id: k3s-worker-${format("%02d", count.index + 1)}-${uuid()}
@@ -112,10 +116,14 @@ resource "libvirt_cloudinit_disk" "worker" {
   network_config = <<-EOT
     version: 2
     ethernets:
-      id0:
-        match:
-          name: "en*"
-        dhcp4: true
+      ens3:
+        addresses:
+          - 192.168.122.${11 + count.index}/24
+        routes:
+          - to: default
+            via: 192.168.122.1
+        nameservers:
+          addresses: [8.8.8.8, 1.1.1.1]
   EOT
 }
 
