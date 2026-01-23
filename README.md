@@ -2,7 +2,7 @@
 
 **Production-grade Kubernetes cluster running on your home lab at zero cloud cost.**
 
-This repository provides Infrastructure as Code (IaC) to deploy a 3-node k3s cluster on libvirt/QEMU. Perfect for learning, development, and demonstrating platform engineering skills without monthly AWS bills.
+This repository provides Infrastructure as Code (IaC) to deploy a 3-node k3s cluster on libvirt/QEMU. Perfect for learning, development, and demonstrating platform engineering skills without monthly cloud bills.
 
 ## Features
 
