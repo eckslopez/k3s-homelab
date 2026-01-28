@@ -1,6 +1,6 @@
 # Architecture & Connections Guide
 
-This document maps out all the network connections and authentication flows in the k3s-homelab deployment.
+This document maps out all the network connections and authentication flows in the kubernetes-platform-infrastructure deployment.
 
 ## System Architecture Diagram
 
@@ -107,16 +107,16 @@ terraform output
 **Setup:**
 ```bash
 # Get kubeconfig from control plane
-ssh ubuntu@<k3s-cp-01-ip> 'sudo cat /etc/rancher/k3s/k3s.yaml' > ~/.kube/k3s-homelab.yaml
+ssh ubuntu@<k3s-cp-01-ip> 'sudo cat /etc/rancher/k3s/k3s.yaml' > ~/.kube/kubernetes-platform-infrastructure.yaml
 
 # Update server IP (change 127.0.0.1 to actual control plane IP)
-sed -i 's/127.0.0.1/<k3s-cp-01-ip>/' ~/.kube/k3s-homelab.yaml
+sed -i 's/127.0.0.1/<k3s-cp-01-ip>/' ~/.kube/kubernetes-platform-infrastructure.yaml
 
 # Use kubectl
-kubectl --kubeconfig ~/.kube/k3s-homelab.yaml get nodes
+kubectl --kubeconfig ~/.kube/kubernetes-platform-infrastructure.yaml get nodes
 
 # Or set as default
-export KUBECONFIG=~/.kube/k3s-homelab.yaml
+export KUBECONFIG=~/.kube/kubernetes-platform-infrastructure.yaml
 kubectl get nodes
 ```
 
@@ -258,7 +258,7 @@ Your Home Network (e.g., 192.168.1.0/24)
 **Connection:** None (runs locally on zlab)
 ```bash
 # On zlab
-cd ~/k3s-homelab/packer/k3s-node
+cd ~/kubernetes-platform-infrastructure/packer/k3s-node
 packer build -var "ubuntu_iso_url=file://$HOME/ubuntu.iso" .
 ```
 
@@ -369,10 +369,10 @@ cat ~/.ssh/authorized_keys
 ### Can't connect kubectl to cluster
 ```bash
 # Verify kubeconfig
-cat ~/.kube/k3s-homelab.yaml
+cat ~/.kube/kubernetes-platform-infrastructure.yaml
 
 # Check server IP is correct (not 127.0.0.1)
-grep server: ~/.kube/k3s-homelab.yaml
+grep server: ~/.kube/kubernetes-platform-infrastructure.yaml
 
 # Test API connectivity
 curl -k https://<k3s-cp-01-ip>:6443/version

@@ -131,8 +131,8 @@ See [NUC Hypervisor Setup Guide](docs/nuc-hypervisor-setup.md) for detailed remo
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/k3s-homelab.git
-cd k3s-homelab
+git clone https://github.com/YOUR_USERNAME/kubernetes-platform-infrastructure.git
+cd kubernetes-platform-infrastructure
 ```
 
 ### 2. Configure Variables
@@ -203,8 +203,8 @@ See [NUC Hypervisor Setup Guide](docs/nuc-hypervisor-setup.md) for complete inst
 **Quick version:**
 ```bash
 # On NUC
-git clone https://github.com/YOUR_USERNAME/k3s-homelab.git
-cd k3s-homelab
+git clone https://github.com/YOUR_USERNAME/kubernetes-platform-infrastructure.git
+cd kubernetes-platform-infrastructure
 
 # Configure libvirt for remote access
 sudo ./scripts/configure-libvirt-remote.sh
@@ -219,7 +219,7 @@ Packer requires direct QEMU access, so run this on the NUC:
 
 ```bash
 # On NUC
-cd k3s-homelab/packer/k3s-node
+cd kubernetes-platform-infrastructure/packer/k3s-node
 packer build \
   -var "ubuntu_iso_url=file://$HOME/ubuntu-24.04.1-live-server-amd64.iso" \
   -var "ubuntu_iso_checksum=none" \
@@ -237,7 +237,7 @@ virsh -c qemu+ssh://user@nuc-hostname/system list --all
 **Deploy with containerized Terraform:**
 ```bash
 # On laptop
-cd k3s-homelab
+cd kubernetes-platform-infrastructure
 
 # Update terraform.tfvars with remote libvirt URI
 vim terraform-libvirt/terraform.tfvars
@@ -256,15 +256,15 @@ docker run --rm \
 
 ```bash
 # Get kubeconfig from control plane
-ssh user@nuc-hostname 'sudo cat /etc/rancher/k3s/k3s.yaml' > ~/.kube/k3s-homelab.yaml
+ssh user@nuc-hostname 'sudo cat /etc/rancher/k3s/k3s.yaml' > ~/.kube/kubernetes-platform-infrastructure.yaml
 
 # Update server IP in kubeconfig
-sed -i 's/127.0.0.1/<control-plane-ip>/' ~/.kube/k3s-homelab.yaml
+sed -i 's/127.0.0.1/<control-plane-ip>/' ~/.kube/kubernetes-platform-infrastructure.yaml
 
 # Use kubectl from container
 docker run --rm \
   -v ~/.kube:/root/.kube:ro \
-  -e KUBECONFIG=/root/.kube/k3s-homelab.yaml \
+  -e KUBECONFIG=/root/.kube/kubernetes-platform-infrastructure.yaml \
   bitnami/kubectl:latest \
   get nodes
 ```
@@ -289,20 +289,20 @@ sudo cat /etc/rancher/k3s/k3s.yaml
 
 # Copy to your local machine and update server IP
 # Then use kubectl locally
-export KUBECONFIG=~/k3s-homelab-kubeconfig.yaml
+export KUBECONFIG=~/kubernetes-platform-infrastructure-kubeconfig.yaml
 kubectl get nodes
 ```
 
 **From Laptop (Remote):**
 ```bash
 # Get kubeconfig
-ssh user@nuc-hostname 'sudo cat /etc/rancher/k3s/k3s.yaml' > ~/.kube/k3s-homelab.yaml
+ssh user@nuc-hostname 'sudo cat /etc/rancher/k3s/k3s.yaml' > ~/.kube/kubernetes-platform-infrastructure.yaml
 
 # Update server IP in kubeconfig
-sed -i 's/127.0.0.1/<control-plane-ip>/' ~/.kube/k3s-homelab.yaml
+sed -i 's/127.0.0.1/<control-plane-ip>/' ~/.kube/kubernetes-platform-infrastructure.yaml
 
 # Use kubectl (containerized or local)
-kubectl --kubeconfig ~/.kube/k3s-homelab.yaml get nodes
+kubectl --kubeconfig ~/.kube/kubernetes-platform-infrastructure.yaml get nodes
 ```
 
 ### 6. Destroy Cluster

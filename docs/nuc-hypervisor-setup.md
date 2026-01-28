@@ -133,7 +133,7 @@ sudo virsh pool-list --all
 
 ```bash
 # On the NUC
-cd k3s-homelab
+cd kubernetes-platform-infrastructure
 sudo ./scripts/configure-libvirt-remote.sh
 ```
 

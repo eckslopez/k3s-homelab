@@ -25,7 +25,7 @@ EOF
 vagrant up
 
 # Copy script into VM
-vagrant upload ../k3s-homelab/scripts/configure-libvirt-remote.sh /tmp/
+vagrant upload ../kubernetes-platform-infrastructure/scripts/configure-libvirt-remote.sh /tmp/
 
 # SSH in and test
 vagrant ssh

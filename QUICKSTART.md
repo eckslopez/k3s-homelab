@@ -42,11 +42,11 @@ ssh ubuntu@<control-plane-ip>
 sudo cat /etc/rancher/k3s/k3s.yaml > ~/k3s.yaml
 
 # Copy to local machine and edit server IP
-scp ubuntu@<control-plane-ip>:~/k3s.yaml ~/.kube/k3s-homelab.yaml
-# Edit ~/.kube/k3s-homelab.yaml - change 127.0.0.1 to <control-plane-ip>
+scp ubuntu@<control-plane-ip>:~/k3s.yaml ~/.kube/kubernetes-platform-infrastructure.yaml
+# Edit ~/.kube/kubernetes-platform-infrastructure.yaml - change 127.0.0.1 to <control-plane-ip>
 
 # Use kubectl
-export KUBECONFIG=~/.kube/k3s-homelab.yaml
+export KUBECONFIG=~/.kube/kubernetes-platform-infrastructure.yaml
 kubectl get nodes
 ```
 

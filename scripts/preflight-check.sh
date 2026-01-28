@@ -1,5 +1,5 @@
 #!/bin/bash
-# Pre-flight check script for k3s-homelab
+# Pre-flight check script for kubernetes-platform-infrastructure
 # Validates libvirt setup before running Packer/Terraform
 
 set -e
