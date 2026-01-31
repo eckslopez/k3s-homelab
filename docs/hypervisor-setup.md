@@ -1,16 +1,16 @@
-# NUC Hypervisor Setup Guide
+# Hypervisor Setup Guide
 
-This guide covers setting up your NUC as a dedicated hypervisor for the k3s home lab, managed remotely from your laptop.
+This guide covers setting up your host as a dedicated hypervisor for the k3s home lab, managed remotely from your laptop.
 
 ## Architecture
 
 ```
 Laptop (Management Station)
-    ├── Terraform (in container) ──SSH──> NUC libvirt
-    ├── Packer (SSH to NUC) ──SSH──────> NUC
-    └── kubectl (in container) ────────> k3s cluster (in VMs on NUC)
+    ├── Terraform (in container) ──SSH──> Host libvirt
+    ├── Packer (SSH to Host) ──SSH──────> Host
+    └── kubectl (in container) ────────> k3s cluster (in VMs on Host)
 
-NUC (Hypervisor Only)
+Host (Hypervisor Only)
     ├── libvirtd + QEMU/KVM
     ├── Bridge network
     ├── Storage pool
@@ -19,16 +19,16 @@ NUC (Hypervisor Only)
 
 ## Prerequisites
 
-- Ubuntu Server 24.04 LTS on NUC
-- SSH access to NUC from laptop
-- NUC has sufficient resources (32GB+ RAM, 18+ CPU cores recommended)
+- Ubuntu Server 24.04 LTS on host
+- SSH access to host from laptop
+- Host has sufficient resources (32GB+ RAM, 18+ CPU cores recommended)
 
-## Initial NUC Setup
+## Initial Host Setup
 
 ### 1. Install Required Packages
 
 ```bash
-# On the NUC
+# On the host
 sudo apt update
 sudo apt install -y \
     qemu-kvm \
@@ -132,7 +132,7 @@ sudo virsh pool-list --all
 ### Option 1: Automated Configuration (Recommended)
 
 ```bash
-# On the NUC
+# On the host
 cd kubernetes-platform-infrastructure
 sudo ./scripts/configure-libvirt-remote.sh
 ```
@@ -200,18 +200,18 @@ On your laptop:
 # Generate key if you don't have one
 ssh-keygen -t ed25519 -C "your-email@example.com"
 
-# Copy to NUC
-ssh-copy-id xlopez@<nuc-ip>
+# Copy to host
+ssh-copy-id <user>@<host-ip>
 ```
 
 ### Test SSH Access
 
 ```bash
 # Test basic SSH
-ssh xlopez@<nuc-ip> 'hostname'
+ssh <user>@<host-ip> 'hostname'
 
 # Test SSH with command
-ssh xlopez@<nuc-ip> 'virsh list --all'
+ssh <user>@<host-ip> 'virsh list --all'
 ```
 
 ## Verify Remote libvirt Access
@@ -220,7 +220,7 @@ From your laptop:
 
 ```bash
 # Test remote libvirt connection
-virsh -c qemu+ssh://xlopez@<nuc-ip>/system list --all
+virsh -c qemu+ssh://<user>@<host-ip>/system list --all
 
 # Should return:
 # Id   Name   State
@@ -228,22 +228,22 @@ virsh -c qemu+ssh://xlopez@<nuc-ip>/system list --all
 # (empty list is fine - no VMs yet)
 
 # Test network list
-virsh -c qemu+ssh://xlopez@<nuc-ip>/system net-list --all
+virsh -c qemu+ssh://<user>@<host-ip>/system net-list --all
 
 # Should show host-bridge and other networks
 
 # Test storage pool
-virsh -c qemu+ssh://xlopez@<nuc-ip>/system pool-list --all
+virsh -c qemu+ssh://<user>@<host-ip>/system pool-list --all
 
 # Should show libvirt_images pool
 ```
 
-## Packer Installation (NUC Only)
+## Packer Installation (Host Only)
 
-Packer needs direct QEMU access, so it must run on the NUC:
+Packer needs direct QEMU access, so it must run on the host:
 
 ```bash
-# On the NUC
+# On the host
 # Add HashiCorp GPG key
 curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
 
@@ -274,7 +274,7 @@ ls -l /dev/kvm
 
 ## Cleanup (Optional)
 
-For a minimal hypervisor-only NUC, remove unnecessary packages:
+For a minimal hypervisor-only host, remove unnecessary packages:
 
 ```bash
 # Remove development tools (if moving all dev to laptop)
@@ -308,7 +308,7 @@ sudo libvirtd --validate
 ### SSH Connection Refused
 
 ```bash
-# Verify SSH is running on NUC
+# Verify SSH is running on host
 sudo systemctl status ssh
 
 # Check firewall (if enabled)
@@ -341,10 +341,10 @@ grep keepalive /etc/libvirt/libvirtd.conf
 
 ## Next Steps
 
-Once the NUC is configured:
+Once the host is configured:
 
-1. **On NUC:** Download Ubuntu ISO and build base image with Packer
-2. **On Laptop:** Run Terraform to provision VMs (connects to NUC remotely)
+1. **On Host:** Download Ubuntu ISO and build base image with Packer
+2. **On Laptop:** Run Terraform to provision VMs (connects to host remotely)
 3. **On Laptop:** Use kubectl to manage k3s cluster
 
 See [README.md](../README.md) for deployment instructions.
