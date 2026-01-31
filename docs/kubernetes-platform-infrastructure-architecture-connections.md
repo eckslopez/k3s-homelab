@@ -7,7 +7,7 @@ This document maps out all the network connections and authentication flows in t
 ```
 Laptop (Management Station)
     │
-    ├─── SSH ────────────────────────> zlab (Hypervisor Host)
+    ├─── SSH ────────────────────────> <host> (Hypervisor Host)
     │                                     │
     │                                     ├─ libvirtd
     │                                     ├─ Storage: ~/libvirt_images/
@@ -25,7 +25,7 @@ Laptop (Management Station)
 
 ## Connection Details
 
-### 1. Laptop → zlab (SSH)
+### 1. Laptop → <host> (SSH)
 
 **Purpose:**
 - Terraform connects to libvirt daemon for VM provisioning
@@ -34,18 +34,18 @@ Laptop (Management Station)
 
 **Authentication:** Your existing SSH key (`~/.ssh/id_rsa`)
 
-**User:** `xlopez` (your user on zlab)
+**User:** `<user>` (your user on <host>)
 
 **Connection Examples:**
 ```bash
 # Manual SSH
-ssh xlopez@zlab
+ssh <user>@<host>
 
 # Terraform libvirt connection
-qemu+ssh://xlopez@zlab/system
+qemu+ssh://<user>@<host>/system
 
 # Test connection
-virsh -c qemu+ssh://xlopez@zlab/system list --all
+virsh -c qemu+ssh://<user>@<host>/system list --all
 ```
 
 **Ports Used:**
@@ -130,7 +130,7 @@ Laptop → k3s-cp-01:6443 (HTTPS with mTLS)
 
 ---
 
-### 4. zlab → VMs (libvirt management)
+### 4. <host> → VMs (libvirt management)
 
 **Purpose:**
 - Hypervisor managing virtual machines
@@ -142,7 +142,7 @@ Laptop → k3s-cp-01:6443 (HTTPS with mTLS)
 
 **Management:**
 ```bash
-# On zlab
+# On <host>
 virsh list --all              # List all VMs
 virsh start k3s-cp-01         # Start VM
 virsh console k3s-cp-01       # Console access
@@ -186,7 +186,7 @@ virsh shutdown k3s-cp-01      # Graceful shutdown
 
 Your existing SSH keypair (`~/.ssh/id_rsa` / `~/.ssh/id_rsa.pub`) is used for:
 
-1. ✅ **laptop → zlab** (as user `xlopez`)
+1. ✅ **laptop → <host>** (as user `<user>`)
    - Already configured and working
    - Used for hypervisor management
 
@@ -194,9 +194,9 @@ Your existing SSH keypair (`~/.ssh/id_rsa` / `~/.ssh/id_rsa.pub`) is used for:
    - Public key injected by Terraform during VM creation
    - Enables troubleshooting access
 
-3. ✅ **Terraform → zlab libvirt**
+3. ✅ **Terraform → <host> libvirt**
    - Terraform uses SSH to connect to libvirt daemon
-   - Same key, same user (`xlopez`)
+   - Same key, same user (`<user>`)
 
 ### Configuration
 
@@ -217,11 +217,11 @@ You don't need to generate new SSH keys. Your existing key works for everything.
 
 | Connection | Protocol | Authentication | User |
 |------------|----------|----------------|------|
-| Laptop → zlab | SSH (port 22) | SSH key | `xlopez` |
+| Laptop → <host> | SSH (port 22) | SSH key | `<user>` |
 | Laptop → VMs | SSH (port 22) | SSH key | `ubuntu` |
 | Laptop → k3s API | HTTPS (port 6443) | kubeconfig (mTLS) | N/A |
-| Terraform → zlab | SSH tunnel | SSH key | `xlopez` |
-| zlab → VMs | libvirt (local) | Local daemon | root |
+| Terraform → <host> | SSH tunnel | SSH key | `<user>` |
+| <host> → VMs | libvirt (local) | Local daemon | root |
 | VMs ↔ VMs | Various k3s ports | k3s tokens/certs | N/A |
 
 ---
@@ -234,7 +234,7 @@ You don't need to generate new SSH keys. Your existing key works for everything.
 Your Home Network (e.g., 192.168.1.0/24)
     ├─ Router (192.168.1.1) - DHCP server
     ├─ Laptop (192.168.1.x)
-    └─ zlab (192.168.1.y) - Bridge network
+    └─ <host> (192.168.1.y) - Bridge network
         └─ br0 (bridged to physical NIC)
             ├─ k3s-cp-01 (192.168.1.z1)
             ├─ k3s-worker-01 (192.168.1.z2)
@@ -243,10 +243,10 @@ Your Home Network (e.g., 192.168.1.0/24)
 
 **Bridge Configuration:**
 - VMs connected to `host-bridge` libvirt network
-- `host-bridge` maps to physical bridge `br0` on zlab
-- `br0` is bridged to zlab's physical network interface
+- `host-bridge` maps to physical bridge `br0` on <host>
+- `br0` is bridged to <host>'s physical network interface
 - VMs get IPs from your home router via DHCP
-- All devices (laptop, zlab, VMs) on same subnet
+- All devices (laptop, <host>, VMs) on same subnet
 
 **Result:** Direct connectivity - laptop can reach VMs without NAT/port forwarding
 
@@ -255,21 +255,21 @@ Your Home Network (e.g., 192.168.1.0/24)
 ## Common Operations & Their Connections
 
 ### Building the Base Image
-**Connection:** None (runs locally on zlab)
+**Connection:** None (runs locally on <host>)
 ```bash
-# On zlab
+# On <host>
 cd ~/kubernetes-platform-infrastructure/packer/k3s-node
 packer build -var "ubuntu_iso_url=file://$HOME/ubuntu.iso" .
 ```
 
 ### Deploying the Cluster
-**Connection:** Laptop → zlab (SSH tunnel for libvirt)
+**Connection:** Laptop → <host> (SSH tunnel for libvirt)
 ```bash
 # From laptop (containerized Terraform)
 docker run --rm \
   -v $(PWD)/terraform-libvirt:/workspace \
   -v ~/.ssh:/root/.ssh:ro \
-  -e LIBVIRT_DEFAULT_URI=qemu+ssh://xlopez@zlab/system \
+  -e LIBVIRT_DEFAULT_URI=qemu+ssh://<user>@<host>/system \
   hashicorp/terraform:latest apply
 ```
 
@@ -292,12 +292,12 @@ sudo systemctl status k3s
 ```
 
 ### Hypervisor Management
-**Connection:** Laptop → zlab (SSH) OR local on zlab
+**Connection:** Laptop → <host> (SSH) OR local on <host>
 ```bash
 # From laptop
-ssh xlopez@zlab 'virsh list --all'
+ssh <user>@<host> 'virsh list --all'
 
-# Or on zlab directly
+# Or on <host> directly
 virsh list --all
 virsh console k3s-cp-01
 ```
@@ -308,7 +308,7 @@ virsh console k3s-cp-01
 
 ### SSH Key Protection
 - Private key (`~/.ssh/id_rsa`) stays on laptop only
-- Never copy private key to VMs or zlab
+- Never copy private key to VMs or <host>
 - Public key is safe to distribute (that's the point)
 
 ### Kubeconfig Security
@@ -320,7 +320,7 @@ virsh console k3s-cp-01
 ### Network Security
 - All systems on same LAN (trusted network)
 - For external access, use Cloudflare Tunnel (future)
-- Consider firewall rules on zlab if needed
+- Consider firewall rules on <host> if needed
 
 ### VM Access
 - VMs only accept SSH key authentication (no passwords)
@@ -331,13 +331,13 @@ virsh console k3s-cp-01
 
 ## Troubleshooting Connection Issues
 
-### Can't SSH to zlab
+### Can't SSH to <host>
 ```bash
 # Test basic connectivity
-ping zlab
+ping <host>
 
 # Check SSH service
-ssh -v xlopez@zlab
+ssh -v <user>@<host>
 
 # Verify SSH key
 ssh-add -l
@@ -346,10 +346,10 @@ ssh-add -l
 ### Can't connect Terraform to libvirt
 ```bash
 # Test libvirt connection manually
-virsh -c qemu+ssh://xlopez@zlab/system list --all
+virsh -c qemu+ssh://<user>@<host>/system list --all
 
-# Check if user in libvirt group (on zlab)
-ssh xlopez@zlab 'groups'
+# Check if user in libvirt group (on <host>)
+ssh <user>@<host> 'groups'
 ```
 
 ### Can't SSH to VMs
