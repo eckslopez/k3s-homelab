@@ -78,7 +78,13 @@ This repository provides Infrastructure as Code to deploy a production-grade 3-n
 **Configuration considerations:**
 - Single-node deployment (not HA)
 - Resource-constrained environment
-- Custom Big Bang values for home lab
+- Custom Big Bang values for sandbox environment
+
+**Big Bang Configuration:**
+- Using Big Bang chart-of-charts pattern
+- Pointing to upstream public Helm repositories (not repo1.dso.mil)
+- No Iron Bank registry dependency
+- Maintains integration benefits of Big Bang without authentication requirements
 
 ## Key Technical Decisions
 
@@ -187,7 +193,7 @@ When writing documentation or blog posts about this project:
 - [Terraform Libvirt Provider](https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs)
 - [Flux Documentation](https://fluxcd.io/flux/)
 - [Big Bang](https://repo1.dso.mil/big-bang/bigbang)
-- ADR-004: Hybrid Home Lab + AWS Architecture (../zavestudios/docs/adrs/004-hybrid-home-lab-aws-architecture.md)
+- ADR-004: Hybrid Sandbox + AWS Architecture (../zavestudios/docs/adrs/004-hybrid-home-lab-aws-architecture.md)
 
 ---
 
