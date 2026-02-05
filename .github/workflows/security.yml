@@ -16,4 +16,4 @@ permissions:
 jobs:
   security:
     name: Security Scan
-    uses: eckslopez/platform-pipelines/.github/workflows/security-scan.yml@main
+    uses: zavestudios/platform-pipelines/.github/workflows/security-scan.yml@main

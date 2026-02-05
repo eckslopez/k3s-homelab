@@ -541,7 +541,7 @@ kubernetes-platform-infrastructure/
 - [Quick Start Guide](../README.md) - Deployment instructions
 - [ADR-003: Flux and ArgoCD Separation](adrs/003-flux-and-argocd-separation.md)
 - [ADR-004: Hybrid Sandbox + AWS Architecture](adrs/004-hybrid-sandbox-aws-architecture.md)
-- [ZaveStudios Platform Overview](https://github.com/eckslopez/zavestudios)
+- [ZaveStudios Platform Overview](https://github.com/zavestudios/zavestudios)
 - [k3s Documentation](https://docs.k3s.io/)
 - [Terraform Libvirt Provider](https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs)
 

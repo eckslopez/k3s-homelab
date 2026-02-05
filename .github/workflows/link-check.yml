@@ -14,6 +14,6 @@ on:
 
 jobs:
   check-links:
-    uses: eckslopez/platform-pipelines/.github/workflows/link-check.yml@main
+    uses: zavestudios/platform-pipelines/.github/workflows/link-check.yml@main
     with:
       fail_on_error: false  # Don't block PRs, just warn

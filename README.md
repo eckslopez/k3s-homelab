@@ -2,7 +2,7 @@
 
 **Automated 3-node k3s cluster deployment on KVM/libvirt virtualization.**
 
-Part of the [ZaveStudios multi-tenant platform](https://github.com/eckslopez/zavestudios) - provides the infrastructure layer for hosting multiple tenant applications with isolated resources.
+Part of the [ZaveStudios multi-tenant platform](https://github.com/zavestudios/zavestudios) - provides the infrastructure layer for hosting multiple tenant applications with isolated resources.
 
 ## Quick Start
 
@@ -10,7 +10,7 @@ Part of the [ZaveStudios multi-tenant platform](https://github.com/eckslopez/zav
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/eckslopez/kubernetes-platform-infrastructure.git
+git clone https://github.com/zavestudios/kubernetes-platform-infrastructure.git
 cd kubernetes-platform-infrastructure
 
 # 2. Configure Terraform variables
@@ -127,7 +127,7 @@ sudo k3s kubectl get nodes
 
 - **[Architecture Guide](docs/architecture.md)** - Complete technical architecture
 - **[ADRs](docs/adrs/)** - Architecture decision records
-- **[ZaveStudios Platform](https://github.com/eckslopez/zavestudios)** - Overall platform overview
+- **[ZaveStudios Platform](https://github.com/zavestudios/zavestudios)** - Overall platform overview
 
 ## Next Steps
 
@@ -137,7 +137,7 @@ After cluster is operational:
 2. **Deploy Big Bang** - DoD DevSecOps baseline (GitLab, ArgoCD, Istio, monitoring)
 3. **Onboard tenant applications** - Deploy apps via ArgoCD
 
-See [ZaveStudios roadmap](https://github.com/eckslopez/zavestudios#current-status) for current phase status.
+See [ZaveStudios roadmap](https://github.com/zavestudios/zavestudios#current-status) for current phase status.
 
 ## Part of ZaveStudios Platform
 
@@ -149,11 +149,11 @@ This infrastructure hosts multiple tenant applications:
 
 Each application has:
 - Isolated Kubernetes namespace
-- Dedicated database tenant in [pg-multitenant](https://github.com/eckslopez/pg-multitenant)
+- Dedicated database tenant in [pg-multitenant](https://github.com/zavestudios/pg-multitenant)
 - Deployment via ArgoCD GitOps
 
 ---
 
 **Maintainer:** Xavier Lopez  
 **Portfolio:** [xavierlopez.me](https://xavierlopez.me)  
-**Platform:** [ZaveStudios](https://github.com/eckslopez/zavestudios)
+**Platform:** [ZaveStudios](https://github.com/zavestudios/zavestudios)
