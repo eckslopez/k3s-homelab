@@ -10,13 +10,23 @@ resource "random_password" "k3s_token" {
   special = false
 }
 
-# Base volume (built by Packer)
-# Terraform will copy the Packer-built image into the libvirt pool
+# Base volume (built by Packer, imported into Terraform state)
+#
+# Bootstrap Process:
+# 1. Build base image: cd packer/k3s-node && packer build .
+# 2. Import to Terraform: terraform import libvirt_volume.base /full/path/to/k3s-node-ubuntu-24.04.qcow2
+# 3. Run terraform apply
+#
+# The lifecycle block prevents Terraform from destroying the Packer-built base image
 resource "libvirt_volume" "base" {
   name   = var.base_volume_name
   pool   = var.libvirt_pool
-  source = "/home/xlopez/libvirt_images/${var.base_volume_name}"
   format = "qcow2"
+
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = [source]
+  }
 }
 
 # Control Plane Nodes
@@ -47,10 +57,7 @@ resource "libvirt_cloudinit_disk" "control_plane" {
   network_config = <<-EOT
     version: 2
     ethernets:
-      eth0:
-        match:
-          name: "en*"
-        set-name: eth0
+      ens3:
         addresses:
           - 192.168.122.10/24
         routes:
@@ -121,10 +128,7 @@ resource "libvirt_cloudinit_disk" "worker" {
   network_config = <<-EOT
     version: 2
     ethernets:
-      eth0:
-        match:
-          name: "en*"
-        set-name: eth0
+      ens3:
         addresses:
           - 192.168.122.${11 + count.index}/24
         routes:
