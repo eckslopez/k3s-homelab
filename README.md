@@ -6,33 +6,63 @@ Part of the [ZaveStudios multi-tenant platform](https://github.com/zavestudios/z
 
 ## Quick Start
 
-**From laptop (recommended):**
+**First-time setup from laptop** (zero to running cluster in ~11 minutes):
 
 ```bash
 # 1. Clone repository
 git clone https://github.com/zavestudios/kubernetes-platform-infrastructure.git
 cd kubernetes-platform-infrastructure
 
-# 2. Configure Terraform variables
-cp terraform-libvirt/terraform.tfvars.example terraform-libvirt/terraform.tfvars
-vim terraform-libvirt/terraform.tfvars
+# 2. Build base image on hypervisor (~3.5 minutes)
+# SSH to your hypervisor host and run:
+cd ~/kubernetes-platform-infrastructure/packer/k3s-node
+packer build .
 
-# Required: Set your SSH public key path
-# ssh_public_key_path = "~/.ssh/id_rsa.pub"
+# 3. Configure Terraform variables (laptop)
+cd ~/kubernetes-platform-infrastructure/terraform-libvirt
+cp terraform.tfvars.example terraform.tfvars
+vim terraform.tfvars
+# Required: Set ssh_public_key_path = "~/.ssh/id_rsa.pub"
 
-# 3. Deploy cluster
-cd terraform-libvirt
+# 4. Initialize Terraform (~3 seconds)
+docker compose run --rm terraform init
+
+# 5. Import base volume to Terraform state (~2 seconds)
+docker compose run --rm terraform import libvirt_volume.base \
+  /home/YOUR_USER/libvirt_images/k3s-node-ubuntu-24.04.qcow2
+
+# 6. Deploy cluster (~7 seconds for VMs)
 docker compose run --rm terraform apply
 
-# Wait ~5 minutes for cloud-init to complete
+# Wait ~7 minutes for cloud-init to install k3s and bootstrap cluster
 
-# 4. Get kubeconfig
-ssh ubuntu@192.168.122.10 'sudo cat /etc/rancher/k3s/k3s.yaml' > ~/.kube/kpi.yaml
-sed -i 's/127.0.0.1/192.168.122.10/' ~/.kube/kpi.yaml
+# 7. Verify VMs are running
+ssh ubuntu@192.168.122.10 echo "VM reachable"
+# On first connection, you'll see:
+# Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+# Warning: Permanently added '192.168.122.10' (ED25519) to the list of known hosts.
+# Password: ubuntu
 
-# 5. Verify cluster
+# 8. Check cloud-init completion
+ssh ubuntu@192.168.122.10 'cloud-init status --wait'
+# Output when done: status: done
+
+# 9. Verify cluster is operational
+ssh ubuntu@192.168.122.10 'sudo k3s kubectl get nodes'
+# All 3 nodes should show Ready status
+
+# 10. Setup kubectl access from laptop (~1 second)
+./scripts/setup-kubectl-tunnel.sh
 export KUBECONFIG=~/.kube/kpi.yaml
 kubectl get nodes -o wide
+```
+
+**Expected output:**
+```
+NAME            STATUS   ROLES           AGE   VERSION
+k3s-cp-01       Ready    control-plane   7m    v1.34.3+k3s1
+k3s-worker-01   Ready    <none>          7m    v1.34.3+k3s1
+k3s-worker-02   Ready    <none>          7m    v1.34.3+k3s1
 ```
 
 ## What This Provides
@@ -60,7 +90,7 @@ kubectl get nodes -o wide
 - Terraform provisions VMs via libvirt provider
 - cloud-init installs and configures k3s
 
-For detailed architecture, see [docs/architecture.md](docs/architecture.md)
+For detailed architecture, see [docs/kpi-architecture.md](docs/kpi-architecture.md)
 
 ## Prerequisites
 
@@ -82,42 +112,52 @@ For detailed architecture, see [docs/architecture.md](docs/architecture.md)
 
 ## Common Operations
 
-**First-time setup (kubectl access):**
-```bash
-cd terraform-libvirt
-./scripts/setup-kubectl-tunnel.sh
-export KUBECONFIG=~/.kube/kpi.yaml
-kubectl get nodes
-```
-
 **Rebuild cluster (preserves base image):**
 ```bash
 cd terraform-libvirt
-./scripts/destroy-cluster.sh  # Safe destroy, preserves base volume
+
+# 1. Destroy cluster (~1 minute)
+./scripts/destroy-cluster.sh
+# Type "yes" when prompted
+
+# 2. Redeploy cluster (~7 seconds for VMs + ~7 min cloud-init)
 docker compose run --rm terraform apply
-# ~5 minutes to fresh cluster
+
+# 3. Verify nodes are ready
+ssh kpi-cp-01 'cloud-init status --wait'
+ssh kpi-cp-01 'sudo k3s kubectl get nodes'
+
+# 4. kubectl should still work (tunnel persists)
+kubectl get nodes
 ```
 
 **Update base image:**
 ```bash
-# On hypervisor host
+# On hypervisor host (~3.5 minutes)
 cd ~/kubernetes-platform-infrastructure/packer/k3s-node
 packer build .
 
-# Then redeploy from laptop
+# From laptop: reimport and redeploy
 cd terraform-libvirt
 ./scripts/destroy-cluster.sh
+docker compose run --rm terraform import libvirt_volume.base \
+  /home/YOUR_USER/libvirt_images/k3s-node-ubuntu-24.04.qcow2
 docker compose run --rm terraform apply
 ```
 
 **Access cluster:**
 ```bash
-# Via kubectl (requires SSH tunnel - see setup script above)
+# Via kubectl from laptop (through SSH tunnel)
 export KUBECONFIG=~/.kube/kpi.yaml
 kubectl get nodes
 
-# Via SSH (direct access through ProxyJump)
+# Via SSH to control plane (through hypervisor ProxyJump)
 ssh kpi-cp-01
+sudo k3s kubectl get nodes
+
+# Directly on hypervisor (for debugging)
+ssh hypervisor
+ssh ubuntu@192.168.122.10
 sudo k3s kubectl get nodes
 ```
 
@@ -136,7 +176,7 @@ sudo k3s kubectl get nodes
 
 ## Documentation
 
-- **[Architecture Guide](docs/architecture.md)** - Complete technical architecture
+- **[Architecture Guide](docs/kpi-architecture.md)** - Complete technical architecture
 - **[ADRs](docs/adrs/)** - Architecture decision records
 - **[ZaveStudios Platform](https://github.com/zavestudios/zavestudios)** - Overall platform overview
 
