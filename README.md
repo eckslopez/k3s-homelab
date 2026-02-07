@@ -95,7 +95,7 @@ k9s               # interactive cluster management
 
 **Node Specifications:**
 - Control Plane/Workers: 6 vCPUs, 10GB RAM, 80GB disk
-- Bastion: 2 vCPUs, 4GB RAM, 20GB disk
+- Bastion: 2 vCPUs, 4GB RAM, 80GB disk (inherited from base volume)
 - Ubuntu 24.04 LTS
 - k3s v1.34.3+k3s1 (pinned, with TLS SAN for 127.0.0.1)
 
@@ -158,7 +158,7 @@ For detailed architecture, see [docs/kpi-architecture.md](docs/kpi-architecture.
 
 **Hardware:**
 - 36GB+ RAM (34GB for VMs + 2GB host)
-- 270GB+ free disk space (includes bastion)
+- 320GB+ free disk space (4x 80GB VMs)
 - 20+ CPU cores recommended
 
 ## Common Operations

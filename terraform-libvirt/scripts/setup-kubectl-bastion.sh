@@ -29,11 +29,11 @@ echo ""
 if [ ! -f "$KUBECONFIG_PATH" ]; then
     echo "Kubeconfig not found at $KUBECONFIG_PATH"
     echo ""
-    echo "Retrieving kubeconfig from control plane via bastion..."
+    echo "Retrieving kubeconfig from control plane..."
     mkdir -p "$(dirname "$KUBECONFIG_PATH")"
 
-    # Fetch kubeconfig through bastion
-    ssh kpi-bastion-01 'ssh ubuntu@192.168.122.10 "sudo cat /etc/rancher/k3s/k3s.yaml"' > "$KUBECONFIG_PATH"
+    # Fetch kubeconfig from control plane (via laptop's ProxyJump)
+    ssh kpi-cp-01 'sudo cat /etc/rancher/k3s/k3s.yaml' > "$KUBECONFIG_PATH"
 
     # Update server to localhost (for tunnel)
     sed -i.bak 's/server: https:\/\/.*:6443/server: https:\/\/127.0.0.1:6443/g' "$KUBECONFIG_PATH"

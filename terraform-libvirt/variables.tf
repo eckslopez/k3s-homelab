@@ -94,9 +94,3 @@ variable "bastion_memory" {
   type        = number
   default     = 4096
 }
-
-variable "bastion_disk_size" {
-  description = "Disk size in bytes for bastion host (default 20GB)"
-  type        = number
-  default     = 21474836480
-}

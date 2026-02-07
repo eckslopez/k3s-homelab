@@ -178,7 +178,7 @@ resource "libvirt_volume" "bastion" {
   name           = "k3s-bastion-01.qcow2"
   pool           = var.libvirt_pool
   base_volume_id = libvirt_volume.base.id
-  size           = var.bastion_disk_size
+  # Size inherited from base volume (80GB) - must be >= base volume size
   format         = "qcow2"
 }
 
