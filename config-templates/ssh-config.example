@@ -3,49 +3,31 @@
 #
 # Update the following values:
 #   - <HYPERVISOR_IP>: Your hypervisor's IP address (e.g., 192.168.1.11)
-#   - <YOUR_SSH_KEY>: Path to your SSH private key (e.g., ~/.ssh/id_rsa)
+#   - <USER>: Your username on the hypervisor (e.g., xlopez)
 
-# Hypervisor host
-Host hypervisor kpi-hypervisor
-  HostName <HYPERVISOR_IP>
-  User xlopez
-  IdentityFile <YOUR_SSH_KEY>
-  ForwardAgent yes
-
-# Bastion host (jump box for cluster access)
-Host kpi-bastion-01 bastion
-  HostName 192.168.122.13
+# All KPI cluster hosts (wildcard pattern)
+# VMs are ephemeral (rebuilt frequently), so suppress host key warnings
+Host kpi-*
   User ubuntu
-  IdentityFile <YOUR_SSH_KEY>
-  ProxyJump hypervisor
+  ProxyJump <USER>@<HYPERVISOR_IP>
   StrictHostKeyChecking no
   UserKnownHostsFile /dev/null
+  LogLevel ERROR
 
 # Control plane
-Host kpi-cp-01 k3s-cp-01
+Host kpi-cp-01
   HostName 192.168.122.10
-  User ubuntu
-  IdentityFile <YOUR_SSH_KEY>
-  ProxyJump hypervisor
-  StrictHostKeyChecking no
-  UserKnownHostsFile /dev/null
 
 # Worker nodes
-Host kpi-worker-01 k3s-worker-01
+Host kpi-worker-01
   HostName 192.168.122.11
-  User ubuntu
-  IdentityFile <YOUR_SSH_KEY>
-  ProxyJump hypervisor
-  StrictHostKeyChecking no
-  UserKnownHostsFile /dev/null
 
-Host kpi-worker-02 k3s-worker-02
+Host kpi-worker-02
   HostName 192.168.122.12
-  User ubuntu
-  IdentityFile <YOUR_SSH_KEY>
-  ProxyJump hypervisor
-  StrictHostKeyChecking no
-  UserKnownHostsFile /dev/null
+
+# Bastion host (jump box for cluster access)
+Host kpi-bastion-01
+  HostName 192.168.122.13
 
 # Usage examples:
 #   ssh kpi-bastion-01                    # Access bastion (run kubectl here)
