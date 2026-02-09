@@ -41,7 +41,7 @@ docker compose run --rm terraform destroy \
 echo ""
 echo "=== Cluster destroyed successfully ==="
 echo ""
-echo "Base volume preserved at: /home/xlopez/libvirt_images/k3s-node-ubuntu-24.04.qcow2"
+echo "Base volume preserved at: /home/$USER/libvirt_images/k3s-node-ubuntu-24.04.qcow2"
 echo ""
 echo "To recreate cluster:"
 echo "  docker compose run --rm terraform apply"

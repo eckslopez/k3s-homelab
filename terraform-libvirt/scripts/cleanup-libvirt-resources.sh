@@ -1,6 +1,6 @@
 #!/bin/bash
 # cleanup-libvirt-resources.sh
-# Run this on zave-lab to clean up actual libvirt resources
+# Run this on the hypervisor to clean up actual libvirt resources
 
 set -e
 
@@ -28,7 +28,7 @@ done
 
 # Delete files directly from filesystem (catches anything libvirt doesn't know about)
 echo "Cleaning up filesystem..."
-cd /home/xlopez/libvirt_images
+cd /home/$USER/libvirt_images
 for file in k3s-cp-01.qcow2 k3s-worker-01.qcow2 k3s-worker-02.qcow2 \
             k3s-cp-01-cloudinit.iso k3s-worker-01-cloudinit.iso k3s-worker-02-cloudinit.iso; do
     if [ -f "$file" ]; then
